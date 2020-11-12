@@ -135,10 +135,9 @@ set key opaque
 plot "{plot_data}" using 1:2 with lines, \
      "{plot_data}" using 1:3 with lines
 
-bind "Close" "reread_loop = 0"
-reread_loop = 1
+bind "Close" exit
 pause {interval}
-if(reread_loop==1) reread
+reread
 """
 
 
@@ -155,10 +154,10 @@ def write_plot_script(fd):
     }
     if args.remote:
         tvars['iface'] = "{} {}".format(args.remote, tvars['iface'])
-    if args.terminal in ('x11', 'wxt'):
-        tvars['termopts'] = '1 noraise title "Traffic - {iface}"'.format(**tvars)
-    elif args.terminal in ('dumb'):
+    if args.terminal == 'dumb':
         tvars['termopts'] = 'ansi256'
+    else:
+        tvars['termopts'] = '1 noraise title "Traffic - {iface}"'.format(**tvars)
     fd.write(plot_script_template.format(**tvars))
     fd.flush()
 
@@ -197,16 +196,16 @@ def parse_args():
     parser.add_argument('-n', '--num-samples', default=120, type=int,
                         help='number of samples to show')
     parser.add_argument('-e', '--interval', default=1, type=int,
-                        help='update interval in seconds')
+                        help='interval between samples in seconds')
     parser.add_argument('-t', '--terminal', default='x11',
                         choices=('x11', 'wxt', 'dumb'),
                         help='gnuplot terminal (x11, wxt or dumb)')
     parser.add_argument('-W', '--width', default=0, type=int,
-                        help='termainal width')
+                        help='terminal width')
     parser.add_argument('-H', '--height', default=0, type=int,
-                        help='termimal height')
+                        help='terminal height')
     parser.add_argument('-v', '--debug', action="store_true",
-                        help='output stderr (it goes to /dev/null by default)')
+                        help='enable stderr (it goes to /dev/null by default)')
     args = parser.parse_args()
     if args.terminal == 'dumb':
         args.width = args.width or 80
