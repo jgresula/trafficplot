@@ -37,7 +37,8 @@ Bandwidth = namedtuple('Bandwidth', ['rx', 'tx'])
 
 def get_iface_lines():
     if args.remote:
-        cmd = ["ssh", args.remote,
+        # -t -x kills the remote process when ssh session is done
+        cmd = ["ssh", "-t", "-x", args.remote,
                'while true; do ifconfig {}; sleep {} ; done'.format(
                    args.iface, args.interval)]
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, **args.popen_args_ex)
